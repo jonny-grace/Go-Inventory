@@ -1,0 +1,11 @@
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Go
+bin/
+coverage.out
+
+# Env
+.env
