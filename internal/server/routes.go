@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"inventory/inventory-api/internal/handlers"
 	"inventory/inventory-api/internal/repository"
 )
 
@@ -11,9 +12,17 @@ func RegisterRoutes(repo repository.Repository) {
 	// Health check
 	http.HandleFunc("/health", HealthHandler)
 
-	// Later we’ll add item routes (GET, POST, etc.)
-	// Example:
-	// http.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
-	// 	ItemsHandler(w, r, repo)
-	// })
+	// Items handler
+	itemHandler := handlers.NewItemHandler(repo)
+
+	http.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			itemHandler.GetAllItems(w, r)
+		case http.MethodPost:
+			itemHandler.CreateItem(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 }
