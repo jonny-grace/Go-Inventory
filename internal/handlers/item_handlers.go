@@ -2,12 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
-	"strings"
-
 	"inventory/inventory-api/internal/models"
 	"inventory/inventory-api/internal/repository"
+	"net/http"
 )
 
 type ItemHandler struct {
@@ -30,6 +27,17 @@ func (h *ItemHandler) GetAllItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
+// GetItemByID handles GET /items/{id}
+func (h *ItemHandler) GetItemByID(w http.ResponseWriter, r *http.Request, id int) {
+	item, err := h.Repo.GetByID(id)
+	if err != nil {
+		http.Error(w, "Item not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(item)
+}
+
 // CreateItem handles POST /items
 func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
@@ -43,53 +51,16 @@ func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(item)
 }
 
-// GetItemByID handles GET /items/{id}
-func (h *ItemHandler) GetItemByID(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from URL path
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) < 3 {
-		http.Error(w, "Invalid item ID", http.StatusBadRequest)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[2])
-	if err != nil {
-		http.Error(w, "Invalid item ID", http.StatusBadRequest)
-		return
-	}
-
-	item, err := h.Repo.GetByID(id)
-	if err != nil {
-		http.Error(w, "Item not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(item)
-}
-
 // DeleteItem handles DELETE /items/{id}
-func (h *ItemHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) < 3 {
-		http.Error(w, "Invalid item ID", http.StatusBadRequest)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[2])
-	if err != nil {
-		http.Error(w, "Invalid item ID", http.StatusBadRequest)
-		return
-	}
-
+func (h *ItemHandler) DeleteItem(w http.ResponseWriter, r *http.Request, id int) {
 	if err := h.Repo.Delete(id); err != nil {
 		http.Error(w, "Item not found", http.StatusNotFound)
 		return
 	}
-
-	w.WriteHeader(http.StatusNoContent) // 204 No Content
+	w.WriteHeader(http.StatusNoContent)
 }
