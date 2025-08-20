@@ -29,9 +29,8 @@ func RegisterRoutes(repo repository.Repository) {
 		}
 	})
 
-	// GET /items/{id} and DELETE /items/{id}
+	// Consolidated handler for /items/{id}
 	http.HandleFunc("/items/", func(w http.ResponseWriter, r *http.Request) {
-		// Extract ID from URL manually
 		idStr := strings.TrimPrefix(r.URL.Path, "/items/")
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
@@ -44,6 +43,8 @@ func RegisterRoutes(repo repository.Repository) {
 			itemHandler.GetItemByID(w, r, id)
 		case http.MethodDelete:
 			itemHandler.DeleteItem(w, r, id)
+		case http.MethodPut:
+			itemHandler.UpdateItem(w, r, id)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}

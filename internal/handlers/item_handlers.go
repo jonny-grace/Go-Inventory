@@ -64,3 +64,34 @@ func (h *ItemHandler) DeleteItem(w http.ResponseWriter, r *http.Request, id int)
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
+
+// UpdateItem handles PUT /items/{id}
+func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request, id int) {
+	var updatedItem models.Item
+	if err := json.NewDecoder(r.Body).Decode(&updatedItem); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Get existing item first
+	existingItem, err := h.Repo.GetByID(id)
+	if err != nil {
+		http.Error(w, "Item not found", http.StatusNotFound)
+		return
+	}
+
+	// Update fields
+	existingItem.Name = updatedItem.Name
+	existingItem.Description = updatedItem.Description
+	existingItem.Quantity = updatedItem.Quantity
+	existingItem.Price = updatedItem.Price
+
+	// Save updated item
+	if err := h.Repo.Update(existingItem); err != nil {
+		http.Error(w, "Failed to update item", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(existingItem)
+}

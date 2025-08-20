@@ -87,3 +87,19 @@ func (r *PostgresRepository) Delete(id int) error {
 
 	return nil
 }
+
+// Update updates an item by ID
+func (r *PostgresRepository) Update(item *models.Item) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	ct, err := r.db.Exec(ctx, "UPDATE items SET name=$1, description=$2, quantity=$3, price=$4 WHERE id=$5",
+		item.Name, item.Description, item.Quantity, item.Price, item.ID)
+	if err != nil {
+		return err
+	}
+	if ct.RowsAffected() == 0 {
+		return errors.New("item not found")
+	}
+	return nil
+}

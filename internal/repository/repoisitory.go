@@ -8,4 +8,5 @@ type Repository interface {
 	GetByID(id int) (*models.Item, error)
 	Create(item *models.Item) error
 	Delete(id int) error
+	Update(item *models.Item) error
 }

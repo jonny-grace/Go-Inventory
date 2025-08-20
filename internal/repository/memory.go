@@ -82,3 +82,14 @@ func (r *MemoryRepository) Delete(id int) error {
 	delete(r.items, id)
 	return nil
 }
+
+func (r *MemoryRepository) Update(item *models.Item) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if _, exists := r.items[item.ID]; !exists {
+		return errors.New("item not found")
+	}
+	r.items[item.ID] = *item
+	return nil
+}
