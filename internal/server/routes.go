@@ -25,4 +25,15 @@ func RegisterRoutes(repo repository.Repository) {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+
+	http.HandleFunc("/items/{id}", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			itemHandler.GetItemByID(w, r)
+		case http.MethodDelete:
+			itemHandler.DeleteItem(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 }

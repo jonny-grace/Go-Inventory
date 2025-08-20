@@ -12,11 +12,32 @@ type MemoryRepository struct {
 	nextID int
 }
 
-// NewMemoryRepository creates a new in-memory repository
+// NewMemoryRepository creates a new in-memory repository with some sample data
 func NewMemoryRepository() *MemoryRepository {
-	return &MemoryRepository{
-		items: make(map[int]models.Item),
+	repo := &MemoryRepository{
+		items:  make(map[int]models.Item),
+		nextID: 1, // start IDs from 1
 	}
+
+	// --- Pre-populate with sample data for testing ---
+	repo.items[repo.nextID] = models.Item{
+		ID:          repo.nextID,
+		Name:        "Sample Item 1",
+		Description: "Sample Item 1 description",
+		Quantity:    10,
+	}
+	repo.nextID++
+
+	repo.items[repo.nextID] = models.Item{
+		ID:          repo.nextID,
+		Name:        "Sample Item 2",
+		Description: "Sample Item 1 description",
+		Quantity:    5,
+	}
+	repo.nextID++
+	// -------------------------------------------------
+
+	return repo
 }
 
 func (r *MemoryRepository) Create(item *models.Item) error {
